@@ -104,6 +104,20 @@ class Program
 
         string expirationDate = Console.ReadLine() ?? string.Empty;
 
+        while (true)
+        {
+            Console.Write("Enter expiration date (mm/dd/yyyy): ");
+            string input = Console.ReadLine() ?? string.Empty;
+            expirationDate = FormatDate(input);
+
+            if (IsValidDate(expirationDate))
+            {
+                break;
+            }
+
+            Console.WriteLine("Invalid date format. Please use mm/dd/yyyy.");
+        }
+
         Console.Write("Enter the quantity: ");
         if (!int.TryParse(Console.ReadLine(), out int quantity))
         {
