@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-
+using System.Globalization;
 class InventoryItem
 {
     public string Name { get; set; } = string.Empty;
@@ -16,6 +16,20 @@ class Program
     string json = System.Text.Json.JsonSerializer.Serialize(inventory);
     File.WriteAllText("data.json", json);
 }
+static string FormatDate(string input)
+    {
+        // FormatDate implementation...
+        // Remove all non-digit characters
+        var digitsOnly = string.Concat(input.Where(char.IsDigit));
+
+        // Reformat to dd/MM/yyyy if possible
+        if (digitsOnly.Length == 8)
+        {
+            return digitsOnly.Substring(0, 2) + "/" + digitsOnly.Substring(2, 2) + "/" + digitsOnly.Substring(4, 4);
+        }
+
+        return input;
+    }
 
 static void LoadInventoryFromFile()
 {
@@ -44,7 +58,18 @@ static void LoadInventoryFromFile()
         Console.Write("Enter name of item: ");
         string name = Console.ReadLine() ?? string.Empty;
         Console.Write("Enter date of purchase: ");
-        string purchaseDate = Console.ReadLine() ?? string.Empty;
+           string purchaseDate;
+    while (true)
+    {
+        Console.Write("Enter date of purchase (dd/mm/yyyy): ");
+        string input = Console.ReadLine() ?? string.Empty;
+        purchaseDate = FormatDate(input);
+        if (DateTime.TryParseExact(purchaseDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
+        {
+            break;
+        }
+        Console.WriteLine("Invalid date format. Please use dd/mm/yyyy.");
+    }
         Console.Write("Enter expiration date: ");
         string expirationDate = Console.ReadLine() ?? string.Empty;
         Console.Write("Enter the quantity: ");
