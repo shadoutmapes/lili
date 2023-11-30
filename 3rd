@@ -1,10 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text.RegularExpressions;
-
 class InventoryItem
 {
     public string Name { get; set; } = string.Empty;
@@ -16,108 +12,77 @@ class InventoryItem
 class Program
 {
     static void SaveInventoryToFile()
+{
+    string json = System.Text.Json.JsonSerializer.Serialize(inventory);
+    File.WriteAllText("data.json", json);
+}
+static string FormatDate(string input)
     {
-        // SRP: Saves the current inventory to a file in JSON format.
-        string json = System.Text.Json.JsonSerializer.Serialize(inventory);
-        File.WriteAllText("data.json", json);
-    }
-
-    static string FormatDate(string input)
-    {
-        // SRP: Formats the date to mm/dd/yyyy and ensures valid date format using regex.
+        // FormatDate implementation...
+        // Remove all non-digit characters
         var digitsOnly = string.Concat(input.Where(char.IsDigit));
+
+        // Reformat to dd/MM/yyyy if possible
         if (digitsOnly.Length == 8)
         {
             return digitsOnly.Substring(0, 2) + "/" + digitsOnly.Substring(2, 2) + "/" + digitsOnly.Substring(4, 4);
         }
+
         return input;
     }
 
-    static bool IsValidDate(string date)
+static void LoadInventoryFromFile()
+{
+    if (File.Exists("data.json"))
     {
-        if (!date.Contains("/"))
-        { 
-            return false; 
-        }
-
-        // SRP: Validates the date using a regex pattern.
-        string pattern = @"^(0[1-9]|1[0-2])/(0[1-9]|[12][0-9]|3[01])/(20\d{2})$"; 
-        return Regex.IsMatch(date, pattern);
+        string json = File.ReadAllText("data.json");
+        inventory = System.Text.Json.JsonSerializer.Deserialize<List<InventoryItem>>(json) ?? new List<InventoryItem>();
     }
-
-    static void LoadInventoryFromFile()
-    {
-        // SRP: Loads the inventory from a file in JSON format.
-        if (File.Exists("data.json"))
-        {
-            string json = File.ReadAllText("data.json");
-            inventory = System.Text.Json.JsonSerializer.Deserialize<List<InventoryItem>>(json) ?? new List<InventoryItem>();
-        }
-    }
+}
 
     static List<InventoryItem> inventory = new List<InventoryItem>();
 
     static void DisplayMenu()
     {
-        // SRP: Displays a simple menu for interacting with the inventory.
-        Console.WriteLine("                     ▐▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▌");
-        Console.WriteLine("                     ▐    ██╗    ██╗██╗  ██╗ █████╗ ████████╗    ██╗███████╗    ██╗███╗   ██╗             ▌");
-        Console.WriteLine("                     ▐    ██║    ██║██║  ██║██╔══██╗╚══██╔══╝    ██║██╔════╝    ██║████╗  ██║             ▌");
-        Console.WriteLine("                     ▐    ██║ █╗ ██║███████║███████║   ██║       ██║███████╗    ██║██╔██╗ ██║             ▌");
-        Console.WriteLine("                     ▐    ██║███╗██║██╔══██║██╔══██║   ██║       ██║╚════██║    ██║██║╚██╗██║             ▌");
-        Console.WriteLine("                     ▐    ╚███╔███╔╝██║  ██║██║  ██║   ██║       ██║███████║    ██║██║ ╚████║             ▌");
-        Console.WriteLine("                     ▐     ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝  ╚═╝   ╚═╝       ╚═╝╚══════╝    ╚═╝╚═╝  ╚═══╝             ▌");
-        Console.WriteLine("                     ▐    ███╗   ███╗██╗   ██╗    ███████╗██████╗ ██╗██████╗  ██████╗ ███████╗██████╗     ▌");
-        Console.WriteLine("                     ▐    ████╗ ████║╚██╗ ██╔╝    ██╔════╝██╔══██╗██║██╔══██╗██╔════╝ ██╔════╝╚════██╗    ▌");
-        Console.WriteLine("                     ▐    ██╔████╔██║ ╚████╔╝     █████╗  ██████╔╝██║██║  ██║██║  ███╗█████╗    ▄███╔╝    ▌");
-        Console.WriteLine("                     ▐    ██║╚██╔╝██║  ╚██╔╝      ██╔══╝  ██╔══██╗██║██║  ██║██║   ██║██╔══╝    ▀▀══╝     ▌");
-        Console.WriteLine("                     ▐    ██║ ╚═╝ ██║   ██║       ██║     ██║  ██║██║██████╔╝╚██████╔╝███████╗  ██╗       ▌");
-        Console.WriteLine("                     ▐    ╚═╝     ╚═╝   ╚═╝       ╚═╝     ╚═╝  ╚═╝╚═╝╚═════╝  ╚═════╝ ╚══════╝  ╚═╝       ▌");
-        Console.WriteLine("                     ▐▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▌");
-
-        Console.WriteLine("\n                                                       Choose an option:");
-        Console.WriteLine("                                         [A]dd Item [R]emove Item [V]iew Inventory E[x]it");
+        Console.WriteLine("\nMenu:");
+        Console.WriteLine("1. Add Item");
+        Console.WriteLine("2. Remove Item");
+        Console.WriteLine("3. View Inventory");
+        Console.WriteLine("4. Exit");
+        Console.WriteLine("\nChoose an option:");
+        Console.WriteLine("[A]dd Item [R]emove Item [V]iew Inventory E[x]it");
     }
 
     static void AddItem()
     {
-        // SRP: Adds an item to the inventory with user input validation.
         Console.Write("Enter name of item: ");
         string name = Console.ReadLine() ?? string.Empty;
-
-        string purchaseDate;
-        while (true)
+        Console.Write("Enter date of purchase: ");
+           string purchaseDate;
+    while (true)
+    {
+        Console.Write("Enter date of purchase (dd/mm/yyyy): ");
+        string input = Console.ReadLine() ?? string.Empty;
+        purchaseDate = FormatDate(input);
+        if (DateTime.TryParseExact(purchaseDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
         {
-            Console.Write("Enter date of purchase (mm/dd/yyyy): ");
-            string input = Console.ReadLine() ?? string.Empty;
-            purchaseDate = FormatDate(input);
-
-            if (IsValidDate(purchaseDate))
-            {
-                break;
-            }
-
-            Console.WriteLine("Invalid date format. Please use mm/dd/yyyy.");
+            break;
         }
-
-        Console.Write("Enter expiration date: ");
-
-        string expirationDate = Console.ReadLine() ?? string.Empty;
-
-        while (true)
+        Console.WriteLine("Invalid date format. Please use dd/mm/yyyy.");
+    }
+    Console.Write("Enter expiration date: ");
+    string expirationDate;
+    while (true)
+    {
+        
+        string input = Console.ReadLine() ?? string.Empty;
+        expirationDate = FormatDate(input);
+        if (DateTime.TryParseExact(expirationDate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out _))
         {
-            Console.Write("Enter expiration date (mm/dd/yyyy): ");
-            string input = Console.ReadLine() ?? string.Empty;
-            expirationDate = FormatDate(input);
-
-            if (IsValidDate(expirationDate))
-            {
-                break;
-            }
-
-            Console.WriteLine("Invalid date format. Please use mm/dd/yyyy.");
+            break;
         }
-
+        Console.WriteLine("Invalid date format. Please use dd/mm/yyyy.");
+    }
         Console.Write("Enter the quantity: ");
         if (!int.TryParse(Console.ReadLine(), out int quantity))
         {
@@ -139,7 +104,6 @@ class Program
 
     static void RemoveItem()
     {
-        // SRP: Removes an item from the inventory with user input validation.
         if (inventory.Count == 0)
         {
             Console.WriteLine("Inventory is empty. Cannot remove items.");
@@ -167,7 +131,6 @@ class Program
 
     static void ViewInventory()
     {
-        // SRP: Displays the current inventory in a user-friendly format.
         if (inventory.Count == 0)
         {
             Console.WriteLine("Inventory is empty.");
@@ -183,9 +146,8 @@ class Program
 
     static void Main()
     {
-        // SRP: Manages the main control flow of the inventory application.
-        LoadInventoryFromFile();
-
+         LoadInventoryFromFile();
+    
         while (true)
         {
             DisplayMenu();
@@ -197,6 +159,7 @@ class Program
                     AddItem();
                     break;
                 case 'R':
+
                     RemoveItem();
                     break;
                 case 'V':
